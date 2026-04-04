@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(git -C:*)",
+      "Bash(find:*)",
+      "Bash(ls -la \"s:\\\\KD-teams\\\\supabase\\\\migrations\"\" 2>/dev/null || ls \"s:KD-teamssupabase \")"
+    ]
+  }
+}
