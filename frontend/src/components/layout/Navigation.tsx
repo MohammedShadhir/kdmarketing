@@ -33,7 +33,6 @@ export const Navigation: React.FC = () => {
     { path: '/sales/profile', label: 'Profile', icon: User },
   ];
 
-
   const subcontractorNavLinks = [
     { path: '/sub-contractor/profile', label: 'Profile', icon: User },
     { path: '/sub-contractor/my-projects', label: 'My Projects', icon: Briefcase },
