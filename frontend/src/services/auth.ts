@@ -1,86 +1,81 @@
-// store/auth.store.ts
-import { create } from "zustand";
 import {
   User,
   SalesLoginCredentials,
   SubContractorLoginCredentials,
+  AuthSession,
 } from "@/types/auth";
-import {
-  loginAsSales,
-  loginAsSubContractor,
-  logout as logoutService,
-  getCurrentUser,
-} from "@/services/auth";
+import { supabase } from "./supabase";
 
-type AuthState = {
-  user: User | null;
-  initialized: boolean;
-  loading: boolean;
-  error: string | null;
-  initialize: () => void;
-  loginSales: (credentials: SalesLoginCredentials) => Promise<void>;
-  loginSubContractor: (
-    credentials: SubContractorLoginCredentials,
-  ) => Promise<void>;
-  logout: () => void;
-  clearError: () => void;
-  setUser: (user: User) => void;
-};
+const AUTH_STORAGE_KEY = "pm_auth_session";
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  initialized: false,
-  loading: false,
-  error: null,
+// Sales login
+export async function loginAsSales(
+  credentials: SalesLoginCredentials,
+): Promise<User> {
+  const { data, error } = await supabase.functions.invoke("auth-login", {
+    body: {
+      email: credentials.email,
+      password: credentials.password,
+      userType: "sales",
+    },
+  });
 
-  // Initialize store with current user if session exists
-  initialize: () => {
-    const user = getCurrentUser();
-    set({ user, initialized: true });
-  },
+  if (error) throw new Error(error.message || "Sales login failed");
+  if (data?.error) throw new Error(data.error);
 
-  // Sales login
-  loginSales: async (credentials) => {
-    set({ loading: true, error: null });
-    try {
-      const user = await loginAsSales(credentials);
-      set({ user, loading: false, initialized: true });
-    } catch (error: any) {
-      // Set proper error message
-      const message = error?.message || "Sales login failed";
-      set({ error: message, loading: false });
-      throw new Error(message);
+  const user: User = data.user;
+  saveSession(user);
+  return user;
+}
+
+// Subcontractor login
+export async function loginAsSubContractor(
+  credentials: SubContractorLoginCredentials,
+): Promise<User> {
+  const { data, error } = await supabase.functions.invoke("auth-login", {
+    body: {
+      email: credentials.email,
+      password: credentials.password,
+      userType: "subcontractor",
+    },
+  });
+
+  if (error) throw new Error(error.message || "Subcontractor login failed");
+  if (data?.error) throw new Error(data.error);
+
+  const user: User = data.user;
+  saveSession(user);
+  return user;
+}
+
+// Logout
+export function logout(): void {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+// Get current user from session
+export function getCurrentUser(): User | null {
+  const sessionStr = localStorage.getItem(AUTH_STORAGE_KEY);
+  if (!sessionStr) return null;
+
+  try {
+    const session: AuthSession = JSON.parse(sessionStr);
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+
+    if (now - session.timestamp > twentyFourHours) {
+      logout();
+      return null;
     }
-  },
 
-  // Subcontractor login
-  loginSubContractor: async (credentials) => {
-    set({ loading: true, error: null });
-    try {
-      const user = await loginAsSubContractor(credentials);
-      set({ user, loading: false, initialized: true });
-    } catch (error: any) {
-      const message = error?.message || "Subcontractor login failed";
-      set({ error: message, loading: false });
-      throw new Error(message);
-    }
-  },
+    return session.user;
+  } catch {
+    return null;
+  }
+}
 
-  // Logout
-  logout: () => {
-    logoutService();
-    set({ user: null, error: null, initialized: true });
-  },
-
-  // Clear error
-  clearError: () => {
-    set({ error: null });
-  },
-
-  // Set user manually (for example after registration)
-  setUser: (user: User) => {
-    set({ user });
-    const session = { user, timestamp: Date.now() };
-    localStorage.setItem("pm_auth_session", JSON.stringify(session));
-  },
-}));
+// Save session
+function saveSession(user: User): void {
+  const session: AuthSession = { user, timestamp: Date.now() };
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+}
