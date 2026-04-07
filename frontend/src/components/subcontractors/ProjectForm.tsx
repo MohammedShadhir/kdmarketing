@@ -11,7 +11,7 @@ import { uploadMultipleMediaFiles, deleteMediaFile, getProjectMedia } from '@/se
 import { MediaFileList } from '@/components/projects/MediaFileList';
 import { ClientAutocomplete } from '@/components/common/ClientAutocomplete';
 import { v4 as uuidv4 } from 'uuid';
-import { cities, locations } from '@/data/locations';
+import { cities } from '@/data/locations';
 import { useCityStore } from '@/store/city.store';
 
 interface Props {
@@ -69,7 +69,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
   const [currentLimit, setCurrentLimit] = useState(50);
   const [useManualEntry, setUseManualEntry] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const { selectedCity, setSelectedCity } = useCityStore();
+  const { setSelectedCity } = useCityStore();
 
   const [payments, setPayments] = useState<Payment[]>(
     Array.isArray(project?.payments) ? project.payments : []
@@ -310,20 +310,20 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
     setValue('customerName', '');
   };
 
-  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const city = e.target.value;
-    setValue('city', city);
-    const taxPercentage = getTaxPercentageByCity(city);
-    setValue('defaultTaxPercentage', taxPercentage);
+  // const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const city = e.target.value;
+  //   setValue('city', city);
+  //   const taxPercentage = getTaxPercentageByCity(city);
+  //   setValue('defaultTaxPercentage', taxPercentage);
 
-    if (showAddPayment || editingPaymentIndex !== null) {
-      setCurrentPayment(prev => ({
-        ...prev,
-        taxPercentage,
-        taxAmount: calculateTaxAmount(prev.amount || 0, taxPercentage),
-      }));
-    }
-  };
+  //   if (showAddPayment || editingPaymentIndex !== null) {
+  //     setCurrentPayment(prev => ({
+  //       ...prev,
+  //       taxPercentage,
+  //       taxAmount: calculateTaxAmount(prev.amount || 0, taxPercentage),
+  //     }));
+  //   }
+  // };
 
   const handleAddPaymentClick = () => {
     const defaultTax = watch('defaultTaxPercentage') || 0;
