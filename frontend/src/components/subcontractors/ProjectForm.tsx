@@ -11,6 +11,8 @@ import { uploadMultipleMediaFiles, deleteMediaFile, getProjectMedia } from '@/se
 import { MediaFileList } from '@/components/projects/MediaFileList';
 import { ClientAutocomplete } from '@/components/common/ClientAutocomplete';
 import { v4 as uuidv4 } from 'uuid';
+import { cities, locations } from '@/data/locations';
+import { useCityStore } from '@/store/city.store';
 
 interface Props {
   subContractorId: string;
@@ -67,6 +69,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
   const [currentLimit, setCurrentLimit] = useState(50);
   const [useManualEntry, setUseManualEntry] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const { selectedCity, setSelectedCity } = useCityStore();
 
   const [payments, setPayments] = useState<Payment[]>(
     Array.isArray(project?.payments) ? project.payments : []
@@ -89,55 +92,55 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormData>({
     defaultValues: project
       ? {
-          title: project.title,
-          description: project.description || '',
-          customerName: project.customerName || '',
-          customerId: project.customerId || '',
-          projectPrice: project.projectPrice,
-          subcontractorPercentage: project.subcontractorPercentage,
-          salesCommissionPercentage: project.salesCommissionPercentage,
-          salesPerson: project.salesPerson || '',
-          advancePaymentAmount: project.advancePaymentAmount || 0,
-          advancePaymentTaxPercentage: project.advancePaymentTaxPercentage || 0,
-          advancePaymentTaxAmount: project.advancePaymentTaxAmount || 0,
-          modeOfPayment: project.modeOfPayment || '',
-          startDate: project.startDate || '',
-          endDate: project.endDate || '',
-          notes: project.notes || '',
-          status: project.status || 'Active',
-          visibility: project.visibility || 'public',
-          addressLine1: project.addressLine1 || '',
-          addressLine2: project.addressLine2 || '',
-          city: project.city || '',
-          state: project.state || '',
-          zipcode: project.zipcode || '',
-          defaultTaxPercentage: project.defaultTaxPercentage || 0,
-          refundAmount: project.refundAmount || 0,
-          refundDate: project.refundDate || '',
-          isDiscontinued: project.isDiscontinued || false,
-          reviewCollected: project.reviewCollected || false,
-        }
+        title: project.title,
+        description: project.description || '',
+        customerName: project.customerName || '',
+        customerId: project.customerId || '',
+        projectPrice: project.projectPrice,
+        subcontractorPercentage: project.subcontractorPercentage,
+        salesCommissionPercentage: project.salesCommissionPercentage,
+        salesPerson: project.salesPerson || '',
+        advancePaymentAmount: project.advancePaymentAmount || 0,
+        advancePaymentTaxPercentage: project.advancePaymentTaxPercentage || 0,
+        advancePaymentTaxAmount: project.advancePaymentTaxAmount || 0,
+        modeOfPayment: project.modeOfPayment || '',
+        startDate: project.startDate || '',
+        endDate: project.endDate || '',
+        notes: project.notes || '',
+        status: project.status || 'Active',
+        visibility: project.visibility || 'public',
+        addressLine1: project.addressLine1 || '',
+        addressLine2: project.addressLine2 || '',
+        city: project.city || '',
+        state: project.state || '',
+        zipcode: project.zipcode || '',
+        defaultTaxPercentage: project.defaultTaxPercentage || 0,
+        refundAmount: project.refundAmount || 0,
+        refundDate: project.refundDate || '',
+        isDiscontinued: project.isDiscontinued || false,
+        reviewCollected: project.reviewCollected || false,
+      }
       : {
-          customerName: '',
-          customerId: '',
-          subcontractorPercentage: selectedSubContractor?.defaultSubcontractorPercentage || 70,
-          salesCommissionPercentage: defaultSalesCommission,
-          advancePaymentAmount: 0,
-          advancePaymentTaxPercentage: 0,
-          advancePaymentTaxAmount: 0,
-          status: 'Active',
-          visibility: 'public',
-          addressLine1: '',
-          addressLine2: '',
-          city: '',
-          state: '',
-          zipcode: '',
-          defaultTaxPercentage: 0,
-          refundAmount: 0,
-          refundDate: '',
-          isDiscontinued: false,
-          reviewCollected: false,
-        },
+        customerName: '',
+        customerId: '',
+        subcontractorPercentage: selectedSubContractor?.defaultSubcontractorPercentage || 70,
+        salesCommissionPercentage: defaultSalesCommission,
+        advancePaymentAmount: 0,
+        advancePaymentTaxPercentage: 0,
+        advancePaymentTaxAmount: 0,
+        status: 'Active',
+        visibility: 'public',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        zipcode: '',
+        defaultTaxPercentage: 0,
+        refundAmount: 0,
+        refundDate: '',
+        isDiscontinued: false,
+        reviewCollected: false,
+      },
   });
 
   useEffect(() => {
@@ -510,17 +513,17 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 duration-200 bg-black/60 backdrop-blur-sm sm:p-4 animate-in fade-in">
       <div className="bg-white rounded-lg sm:rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden transform animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-4 sm:px-8 py-4 sm:py-6">
+        <div className="px-4 py-4 text-white bg-gradient-to-r from-emerald-600 to-emerald-700 sm:px-8 sm:py-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl sm:text-2xl font-bold">
+            <h2 className="text-xl font-bold sm:text-2xl">
               {project ? 'Edit Project' : 'Add New Project'}
             </h2>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white transition-colors"
+              className="transition-colors text-white/80 hover:text-white"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -534,12 +537,12 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Project Title */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Project Title *
               </label>
               <input
                 {...register('title', { required: 'Title is required' })}
-                className="input-field w-full"
+                className="w-full input-field"
                 placeholder="Enter project title"
               />
               {errors.title && (
@@ -549,20 +552,20 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Description
               </label>
               <textarea
                 {...register('description')}
                 rows={3}
-                className="input-field w-full resize-none"
+                className="w-full resize-none input-field"
                 placeholder="Project details and description"
               />
             </div>
 
             {/* Customer Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Customer *
               </label>
 
@@ -588,7 +591,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                 <div className="space-y-2">
                   <input
                     {...register('customerName', { required: 'Customer name is required' })}
-                    className="input-field w-full"
+                    className="w-full input-field"
                     placeholder="Enter customer name"
                   />
                   {errors.customerName && (
@@ -601,7 +604,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                       setValue('customerName', '');
                       setValue('customerId', '');
                     }}
-                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
+                    className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -613,22 +616,22 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
             </div>
 
             {/* Address Section */}
-            <div className="space-y-4 p-4 sm:p-6 border-2 border-emerald-200 rounded-lg bg-emerald-50/30">
+            <div className="p-4 space-y-4 border-2 rounded-lg sm:p-6 border-emerald-200 bg-emerald-50/30">
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-5 h-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <h3 className="font-semibold text-lg text-emerald-900">Project Address</h3>
+                <h3 className="text-lg font-semibold text-emerald-900">Project Address</h3>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Address Line 1 *
                 </label>
                 <input
                   {...register('addressLine1', { required: 'Address is required' })}
-                  className="input-field w-full"
+                  className="w-full input-field"
                   placeholder="Street address"
                 />
                 {errors.addressLine1 && (
@@ -637,57 +640,64 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Address Line 2
                 </label>
                 <input
                   {...register('addressLine2')}
-                  className="input-field w-full"
+                  className="w-full input-field"
                   placeholder="Apartment, suite, etc. (optional)"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-semibold text-gray-700">
                     City *
                   </label>
-                  <input
+                  <select
                     {...register('city', { required: 'City is required' })}
-                    onChange={handleCityChange}
-                    className="input-field w-full"
-                    placeholder="City"
-                  />
-                  {errors.city && (
-                    <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                  )}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg input-field"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select City
+                    </option>
+                    {cities.map((mainCity) => (
+                      <option key={mainCity} value={mainCity}>
+                        {mainCity}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-semibold text-gray-700">
                     State
                   </label>
                   <input
                     {...register('state')}
-                    className="input-field w-full"
+                    className="w-full input-field"
                     placeholder="NY"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-semibold text-gray-700">
                     Zipcode
                   </label>
                   <input
                     {...register('zipcode')}
-                    className="input-field w-full"
+                    className="w-full input-field"
                     placeholder="12345"
                   />
                 </div>
               </div>
 
               {/* Tax Percentage Display */}
-              <div className="bg-white border-2 border-emerald-300 rounded-lg p-4">
+              <div className="p-4 bg-white border-2 rounded-lg border-emerald-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -699,7 +709,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     {watch('defaultTaxPercentage') || 0}%
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="mt-2 text-xs text-gray-500">
                   {watch('defaultTaxPercentage') ? 'Auto-filled based on city (can be overridden per payment)' : 'Enter city to auto-fill tax percentage'}
                 </p>
               </div>
@@ -707,33 +717,33 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
             </div>
 
             {/* Pricing */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Project Price *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2">$</span>
                   <input
                     type="number"
                     step="0.01"
                     {...register('projectPrice', { required: true, min: 0, valueAsNumber: true })}
-                    className="input-field w-full pl-8"
+                    className="w-full pl-8 input-field"
                     placeholder="0.00"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Advance Payment Amount
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2">$</span>
                   <input
                     type="number"
                     step="0.01"
                     {...register('advancePaymentAmount', { min: 0, valueAsNumber: true })}
-                    className="input-field w-full pl-8"
+                    className="w-full pl-8 input-field"
                     placeholder="0.00"
                   />
                 </div>
@@ -742,11 +752,11 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
             {/* Advance Payment Tax */}
             {watch('advancePaymentAmount') > 0 && (
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 className="text-sm font-semibold text-blue-800 mb-3">Advance Payment Tax</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                <h4 className="mb-3 text-sm font-semibold text-blue-800">Advance Payment Tax</h4>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Tax Percentage
                     </label>
                     <div className="relative">
@@ -760,18 +770,18 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                           const taxAmount = (amount * percentage) / 100;
                           setValue('advancePaymentTaxAmount', parseFloat(taxAmount.toFixed(2)));
                         }}
-                        className="input-field w-full pr-8"
+                        className="w-full pr-8 input-field"
                         placeholder="0"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                      <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2">%</span>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Tax Amount
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <span className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2">$</span>
                       <input
                         type="number"
                         step="0.01"
@@ -784,22 +794,22 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                             setValue('advancePaymentTaxPercentage', parseFloat(percentage.toFixed(2)));
                           }
                         }}
-                        className="input-field w-full pl-8"
+                        className="w-full pl-8 input-field"
                         placeholder="0.00"
                       />
                     </div>
                   </div>
                 </div>
-                <p className="text-xs text-blue-600 mt-2">
+                <p className="mt-2 text-xs text-blue-600">
                   Total with tax: {formatCurrency((watch('advancePaymentAmount') || 0) + (watch('advancePaymentTaxAmount') || 0))}
                 </p>
               </div>
             )}
 
             {/* Commission Rates */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Subcontractor % *
                 </label>
                 <div className="relative">
@@ -807,14 +817,14 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     type="number"
                     step="0.5"
                     {...register('subcontractorPercentage', { required: true, min: 0, max: 100, valueAsNumber: true })}
-                    className="input-field w-full pr-8"
+                    className="w-full pr-8 input-field"
                     placeholder="70"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                  <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2">%</span>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Sales Commission % *
                 </label>
                 <div className="relative">
@@ -822,33 +832,33 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     type="number"
                     step="0.5"
                     {...register('salesCommissionPercentage', { required: true, min: 0, max: 100, valueAsNumber: true })}
-                    className="input-field w-full pr-8"
+                    className="w-full pr-8 input-field"
                     placeholder="15"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                  <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2">%</span>
                 </div>
               </div>
             </div>
 
             {/* Sales Person and Payment Mode */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Sales Person
                 </label>
                 <input
                   {...register('salesPerson')}
-                  className="input-field w-full"
+                  className="w-full input-field"
                   placeholder="Enter sales person name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Mode of Payment
                 </label>
                 <select
                   {...register('modeOfPayment')}
-                  className="input-field w-full"
+                  className="w-full input-field"
                 >
                   <option value="">Select payment mode</option>
                   <option value="Cash">Cash</option>
@@ -861,37 +871,37 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   Start Date
                 </label>
                 <input
                   type="date"
                   {...register('startDate')}
-                  className="input-field w-full"
+                  className="w-full input-field"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block mb-2 text-sm font-semibold text-gray-700">
                   End Date
                 </label>
                 <input
                   type="date"
                   {...register('endDate')}
-                  className="input-field w-full"
+                  className="w-full input-field"
                 />
               </div>
             </div>
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Status
               </label>
               <select
                 {...register('status')}
-                className="input-field w-full"
+                className="w-full input-field"
               >
                 <option value="Active">Active</option>
                 <option value="Completed">Completed</option>
@@ -902,25 +912,25 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
             {/* Visibility */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Visibility to Sub-Contractor
               </label>
               <select
                 {...register('visibility')}
-                className="input-field w-full"
+                className="w-full input-field"
               >
                 <option value="public">Public - Full project details visible</option>
                 <option value="unlisted">Unlisted - Only dates visible</option>
                 <option value="private">Private - Completely hidden</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="mt-1 text-xs text-gray-500">
                 Controls what the assigned sub-contractor can see about this project
               </p>
             </div>
 
             {/* Review Collected */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Review Collected
               </label>
               <div className="flex gap-4">
@@ -945,19 +955,19 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                   <span className="ml-2 text-sm font-medium text-gray-700">No</span>
                 </label>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="mt-1 text-xs text-gray-500">
                 Has a review been collected from the customer for this project?
               </p>
             </div>
 
             {/* Refund Section */}
             {project && (
-              <div className="space-y-4 p-4 sm:p-6 border-2 border-red-200 rounded-lg bg-red-50/30">
+              <div className="p-4 space-y-4 border-2 border-red-200 rounded-lg sm:p-6 bg-red-50/30">
                 <div className="flex items-center gap-2 mb-2">
                   <svg className="w-5 h-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
                   </svg>
-                  <h3 className="font-semibold text-lg text-red-900">Refund</h3>
+                  <h3 className="text-lg font-semibold text-red-900">Refund</h3>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -973,9 +983,9 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                 </div>
 
                 {watch('isDiscontinued') && (
-                  <div className="space-y-4 pt-4 border-t border-red-200">
+                  <div className="pt-4 space-y-4 border-t border-red-200">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Refund Amount
                       </label>
                       <input
@@ -991,7 +1001,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                             return true;
                           }
                         })}
-                        className="input-field w-full"
+                        className="w-full input-field"
                         placeholder="Enter refund amount"
                       />
                       {errors.refundAmount && (
@@ -1003,7 +1013,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Refund Date
                       </label>
                       <input
@@ -1011,20 +1021,20 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                         {...register('refundDate', {
                           required: watch('isDiscontinued') && watch('refundAmount') > 0 ? 'Refund date is required' : false
                         })}
-                        className="input-field w-full"
+                        className="w-full input-field"
                       />
                       {errors.refundDate && (
                         <p className="mt-1 text-sm text-red-600">{errors.refundDate.message}</p>
                       )}
                     </div>
 
-                    <div className="bg-white border-2 border-red-300 rounded-lg p-4">
+                    <div className="p-4 bg-white border-2 border-red-300 rounded-lg">
                       <div className="flex items-start gap-2">
                         <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <div className="text-sm text-gray-700">
-                          <p className="font-semibold mb-1">This project is marked as discontinued</p>
+                          <p className="mb-1 font-semibold">This project is marked as discontinued</p>
                           <p className="text-xs">The refund amount will be subtracted from the total client payments and shown separately in the dashboard.</p>
                         </div>
                       </div>
@@ -1035,19 +1045,19 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
             )}
 
             {/* Payments Section */}
-            <div className="space-y-4 p-4 sm:p-6 border-2 border-blue-200 rounded-lg bg-blue-50/30">
+            <div className="p-4 space-y-4 border-2 border-blue-200 rounded-lg sm:p-6 bg-blue-50/30">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <h3 className="font-semibold text-lg text-blue-900">Payments Received</h3>
+                  <h3 className="text-lg font-semibold text-blue-900">Payments Received</h3>
                 </div>
                 {!showAddPayment && (
                   <button
                     type="button"
                     onClick={handleAddPaymentClick}
-                    className="btn-primary text-sm py-2 px-3"
+                    className="px-3 py-2 text-sm btn-primary"
                   >
                     + Add Payment
                   </button>
@@ -1056,24 +1066,24 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
               {/* Payment Summary */}
               {(Array.isArray(payments) && payments.length > 0) || watch('advancePaymentAmount') > 0 && (
-                <div className="bg-white border-2 border-blue-300 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between items-center">
+                <div className="p-4 space-y-2 bg-white border-2 border-blue-300 rounded-lg">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-700">Advance Payment:</span>
                     <span className="text-lg font-bold text-emerald-700">{formatCurrency(watch('advancePaymentAmount') || 0)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-700">Manual Payments:</span>
                     <span className="text-lg font-bold text-blue-700">{formatCurrency(totalPaymentsReceived)}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                  <div className="flex items-center justify-between pt-2 border-t border-blue-200">
                     <span className="text-sm font-semibold text-gray-700">Total Received:</span>
                     <span className="text-lg font-bold text-blue-700">{formatCurrency((watch('advancePaymentAmount') || 0) + totalPaymentsReceived)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-700">Total Tax Collected:</span>
                     <span className="text-lg font-bold text-blue-700">{formatCurrency(totalTaxCollected)}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                  <div className="flex items-center justify-between pt-2 border-t border-blue-200">
                     <span className="text-sm font-semibold text-gray-700">Client Owes:</span>
                     <span className={`text-lg font-bold ${(watch('projectPrice') - (watch('advancePaymentAmount') || 0) - totalPaymentsReceived) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
                       {formatCurrency(watch('projectPrice') - (watch('advancePaymentAmount') || 0) - totalPaymentsReceived)}
@@ -1084,7 +1094,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
               {/* Add/Edit Payment Form */}
               {showAddPayment && (
-                <div className="bg-white border-2 border-blue-400 rounded-lg p-4 space-y-4">
+                <div className="p-4 space-y-4 bg-white border-2 border-blue-400 rounded-lg">
                   <h4 className="font-semibold text-blue-900">
                     {editingPaymentIndex !== null ? 'Edit Payment' : 'Add New Payment'}
                   </h4>
@@ -1149,7 +1159,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                   {/* Paid To Selection */}
                   {(currentPayment.paymentType === 'subcontractor_payment' || currentPayment.paymentType === 'sales_payment') && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Paid To *
                       </label>
                       <select
@@ -1163,7 +1173,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                             paidToSalesPerson: recipient === 'subcontractor' ? '' : currentPayment.paidToSalesPerson
                           });
                         }}
-                        className="input-field w-full"
+                        className="w-full input-field"
                       >
                         <option value="">Select recipient...</option>
                         <option value="subcontractor">Sub-Contractor</option>
@@ -1175,45 +1185,45 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                   {/* Sales Person Name */}
                   {currentPayment.paymentType === 'sales_payment' && currentPayment.paidTo === 'sales_person' && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Sales Person Name *
                       </label>
                       <input
                         type="text"
                         value={currentPayment.paidToSalesPerson || ''}
                         onChange={(e) => setCurrentPayment({ ...currentPayment, paidToSalesPerson: e.target.value })}
-                        className="input-field w-full"
+                        className="w-full input-field"
                         placeholder="Enter sales person name..."
                       />
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Payment Amount *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2">$</span>
                         <input
                           type="number"
                           step="0.01"
                           value={currentPayment.amount || ''}
                           onChange={(e) => handlePaymentAmountChange(parseFloat(e.target.value) || 0)}
-                          className="input-field w-full pl-8"
+                          className="w-full pl-8 input-field"
                           placeholder="0.00"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Payment Method *
                       </label>
                       <select
                         value={currentPayment.method}
                         onChange={(e) => setCurrentPayment({ ...currentPayment, method: e.target.value as PaymentMethod })}
-                        className="input-field w-full"
+                        className="w-full input-field"
                       >
                         <option value="Cash 💵">Cash 💵</option>
                         <option value="Cheque">Cheque</option>
@@ -1224,19 +1234,19 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Payment Date *
                       </label>
                       <input
                         type="date"
                         value={currentPayment.date}
                         onChange={(e) => setCurrentPayment({ ...currentPayment, date: e.target.value })}
-                        className="input-field w-full"
+                        className="w-full input-field"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
                         Tax Percentage (%) *
                       </label>
                       <div className="relative">
@@ -1245,19 +1255,19 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                           step="0.01"
                           value={currentPayment.taxPercentage || ''}
                           onChange={(e) => handlePaymentTaxChange(parseFloat(e.target.value) || 0)}
-                          className="input-field w-full pr-8"
+                          className="w-full pr-8 input-field"
                           placeholder="0"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                        <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2">%</span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="mt-1 text-xs text-gray-500">
                         Default: {watch('defaultTaxPercentage') || 0}% (can override)
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block mb-2 text-sm font-semibold text-gray-700">
                       Tax Amount (Calculated)
                     </label>
                     <div className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 font-semibold">
@@ -1266,14 +1276,14 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block mb-2 text-sm font-semibold text-gray-700">
                       Notes
                     </label>
                     <textarea
                       value={currentPayment.notes || ''}
                       onChange={(e) => setCurrentPayment({ ...currentPayment, notes: e.target.value })}
                       rows={2}
-                      className="input-field w-full resize-none"
+                      className="w-full resize-none input-field"
                       placeholder="Additional payment notes..."
                     />
                   </div>
@@ -1282,14 +1292,14 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     <button
                       type="button"
                       onClick={handleCancelPayment}
-                      className="btn-secondary flex-1"
+                      className="flex-1 btn-secondary"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={handleSavePayment}
-                      className="btn-primary flex-1"
+                      className="flex-1 btn-primary"
                     >
                       {editingPaymentIndex !== null ? 'Update Payment' : 'Save Payment'}
                     </button>
@@ -1300,16 +1310,16 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
               {/* Payment History */}
               {Array.isArray(payments) && payments.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-700 text-sm">Payment History ({payments.length})</h4>
+                  <h4 className="text-sm font-semibold text-gray-700">Payment History ({payments.length})</h4>
                   {payments.map((payment, index) => (
                     <div
                       key={payment.id}
-                      className="bg-white border border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors"
+                      className="p-4 transition-colors bg-white border border-gray-300 rounded-lg hover:border-blue-400"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-bold text-lg text-gray-900">{formatCurrency(payment.amount)}</span>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-lg font-bold text-gray-900">{formatCurrency(payment.amount)}</span>
                             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
                               {payment.method}
                             </span>
@@ -1347,7 +1357,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                             Tax: <span className="font-medium">{payment.taxPercentage}%</span> = {formatCurrency(payment.taxAmount)}
                           </div>
                           {payment.notes && (
-                            <div className="text-sm text-gray-500 italic">
+                            <div className="text-sm italic text-gray-500">
                               Note: {payment.notes}
                             </div>
                           )}
@@ -1356,7 +1366,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                           <button
                             type="button"
                             onClick={() => handleEditPayment(index)}
-                            className="text-blue-600 hover:text-blue-700 p-2"
+                            className="p-2 text-blue-600 hover:text-blue-700"
                             title="Edit payment"
                           >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1366,7 +1376,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                           <button
                             type="button"
                             onClick={() => handleDeletePayment(index)}
-                            className="text-red-600 hover:text-red-700 p-2"
+                            className="p-2 text-red-600 hover:text-red-700"
                             title="Delete payment"
                           >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1381,40 +1391,40 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
               )}
 
               {(!Array.isArray(payments) || payments.length === 0) && !showAddPayment && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="py-8 text-center text-gray-500">
                   <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <p className="text-sm">No payments recorded yet</p>
-                  <p className="text-xs mt-1">Click "Add Payment" to record a payment</p>
+                  <p className="mt-1 text-xs">Click "Add Payment" to record a payment</p>
                 </div>
               )}
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Notes
               </label>
               <textarea
                 {...register('notes')}
                 rows={3}
-                className="input-field w-full resize-none"
+                className="w-full resize-none input-field"
                 placeholder="Additional notes..."
               />
             </div>
 
             {/* Media Files */}
-            <div className="border-t pt-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="pt-6 border-t">
+              <label className="block mb-3 text-sm font-semibold text-gray-700">
                 Media Files
               </label>
 
               {/* Existing Files */}
               {project && (
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">
-                    Uploaded Files {loadingMedia && <span className="text-gray-500 text-xs">(Loading...)</span>}
+                  <h4 className="mb-3 text-sm font-medium text-gray-700">
+                    Uploaded Files {loadingMedia && <span className="text-xs text-gray-500">(Loading...)</span>}
                   </h4>
                   <MediaFileList
                     mediaFiles={existingMediaFiles}
@@ -1429,7 +1439,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                   {project ? 'Add More Files' : 'Upload Files'}
                 </h4>
                 <div className="flex items-center gap-3">
-                  <label className="btn-primary cursor-pointer inline-flex items-center gap-2">
+                  <label className="inline-flex items-center gap-2 cursor-pointer btn-primary">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
@@ -1443,11 +1453,11 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                     />
                   </label>
                 </div>
-                
+
                 {selectedFiles.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <div className="p-4 space-y-2 rounded-lg bg-gray-50">
                     {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white p-3 rounded border border-gray-200">
+                      <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded">
                         <div className="flex items-center gap-3">
                           {file.type.startsWith('video/') ? (
                             <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1472,7 +1482,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
                         <button
                           type="button"
                           onClick={() => handleRemoveSelectedFile(index)}
-                          className="text-red-600 hover:text-red-700 p-1"
+                          className="p-1 text-red-600 hover:text-red-700"
                           title="Remove file"
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1486,7 +1496,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
 
                 {uploadingFiles && (
                   <div className="flex items-center gap-2 text-emerald-600">
-                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -1514,7 +1524,7 @@ export function ProjectForm({ subContractorId, project, onClose }: Props) {
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

@@ -4,12 +4,17 @@ import { Users, Calculator, Calendar, User, Menu, X, LogOut, Briefcase, Settings
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 import { GHLAccountSelector } from './GHLAccountSelector';
+import { supabase } from '@/services/supabase';
+import { useCityStore } from '@/store/city.store';
+import { locations, MainLocation } from '@/data/locations';
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuthStore();
+  const [cities, setCities] = useState<string[]>([]);
+  const { selectedCity, setSelectedCity } = useCityStore();
 
   const adminNavLinks = [
     { path: '/admin', label: 'Dashboard', icon: Briefcase },
@@ -27,6 +32,7 @@ export const Navigation: React.FC = () => {
     { path: '/sales/calendar', label: 'Calendar', icon: Calendar },
     { path: '/sales/profile', label: 'Profile', icon: User },
   ];
+
 
   const subcontractorNavLinks = [
     { path: '/sub-contractor/profile', label: 'Profile', icon: User },
@@ -63,6 +69,32 @@ export const Navigation: React.FC = () => {
       document.body.style.overflow = 'unset';
     };
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (user?.role !== 'subcontractor') return;
+    if (!user?.id) return; // or subcontractor_id
+
+    const fetchCities = async () => {
+      const { data, error } = await supabase.functions.invoke(
+        'get-subcontractor-cities',
+        {
+          body: {
+            subcontractor_id: user.id,
+          },
+        }
+      );
+
+      console.log('Fetched cities:', data?.cities);
+
+      if (error) {
+        console.error(error);
+      } else {
+        setCities(data?.cities || []);
+      }
+    };
+
+    fetchCities();
+  }, [user]);
 
   return (
     <>
@@ -105,6 +137,31 @@ export const Navigation: React.FC = () => {
             <div className="items-center flex-shrink-0 hidden gap-3 md:flex">
               { }
               {user?.role === 'sales' && <GHLAccountSelector />}
+              {user?.role === 'subcontractor' && (
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => {
+                      const mainLocation = e.target.value as MainLocation; // Type-safe
+                      setSelectedCity(mainLocation);
+
+                      // Automatically get all sub-locations for project filtering
+                      const subLocations = locations[mainLocation] || [];
+                      // Store subLocations in a store/context to filter projects
+                      console.log("Sub-locations to filter projects:", subLocations);
+                    }}
+                    disabled={cities.length === 0}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg"
+                  >
+                    <option value="">All Cities</option>
+                    {Object.keys(locations).map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
                 <div className="flex items-center justify-center rounded-full w-7 h-7 bg-emerald-600">
@@ -189,6 +246,22 @@ export const Navigation: React.FC = () => {
         { }
         <div className="p-4">
           <nav className="space-y-2">
+            {user?.role === 'subcontractor' && Object.keys(locations).length > 0 && (
+              <div className="mb-4">
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg"
+                >
+                  <option value="">All Cities</option>
+                  {Object.keys(locations).map((mainCity) => (
+                    <option key={mainCity} value={mainCity}>
+                      {mainCity}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {navLinks.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
