@@ -35,26 +35,30 @@ export function LoginForm({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Trim whitespaces
         const trimmedEmail = email.trim();
         const trimmedPassword = password.trim();
 
-        // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(trimmedEmail)) {
             setLocalError("Please enter a valid email address.");
             return;
         }
 
-        // Password length check
         if (trimmedPassword.length < 6) {
             setLocalError("Password must be at least 6 characters long.");
             return;
         }
 
-        // Clear previous error and call parent onSubmit
         setLocalError(null);
         onSubmit(e);
+    };
+
+    const handleEmailChange = (val: string) => {
+        setEmail(val.replace(/\s/g, "")); // remove spaces
+    };
+
+    const handlePasswordChange = (val: string) => {
+        setPassword(val.replace(/\s/g, "")); // remove spaces
     };
 
     return (
@@ -64,21 +68,25 @@ export function LoginForm({
             <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                onPaste={(e) => {
+                    e.preventDefault();
+                    handleEmailChange(e.clipboardData.getData("text").replace(/\s/g, ""));
+                }}
                 onKeyDown={(e) => {
-                    if (e.key === ' ') e.preventDefault(); // Prevent space
+                    if (e.key === " ") e.preventDefault(); // prevent spacebar
                 }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="email@example.com"
+                required
             />
 
             <PasswordInput
                 value={password}
-                onChange={(val) => setPassword(val.replace(/\s/g, ''))} // remove ALL spaces while typing
+                onChange={handlePasswordChange}
                 color={color}
             />
 
-            {/* Show validation or server error */}
             {(localError || error) && (
                 <div className="px-4 py-3 text-sm text-red-700 rounded-lg bg-red-50">
                     {localError || error}
