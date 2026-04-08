@@ -8,6 +8,21 @@ import { supabase } from "./supabase";
 
 const AUTH_STORAGE_KEY = "pm_auth_session";
 
+function extractErrorMessage(error: any, fallback: string): string {
+  try {
+    const body = error?.context?.body;
+
+    if (body) {
+      const parsed = JSON.parse(body);
+      return parsed.error || fallback;
+    }
+
+    return error.message || fallback;
+  } catch {
+    return error.message || fallback;
+  }
+}
+
 // Sales login
 export async function loginAsSales(
   credentials: SalesLoginCredentials,
@@ -20,7 +35,10 @@ export async function loginAsSales(
     },
   });
 
-  if (error) throw new Error(error.message || "Sales login failed");
+  if (error) {
+    throw new Error(extractErrorMessage(error, "Sales login failed"));
+  }
+
   if (data?.error) throw new Error(data.error);
 
   const user: User = data.user;
@@ -40,7 +58,9 @@ export async function loginAsSubContractor(
     },
   });
 
-  if (error) throw new Error(error.message || "Subcontractor login failed");
+  if (error) {
+    throw new Error(extractErrorMessage(error, "Subcontractor login failed"));
+  }
   if (data?.error) throw new Error(data.error);
 
   const user: User = data.user;

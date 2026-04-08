@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Navigation } from '@/components/layout/Navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { LoginPage } from '@/pages/LoginPage';
+import { LoginPage } from '@/pages/auth/LoginPage';
 import { SubContractorsPage } from '@/pages/SubContractorsPage';
 import { SubContractorMonthPage } from '@/pages/SubContractorMonthPage';
 import { CalculatorPage } from '@/pages/CalculatorPage';
@@ -63,17 +63,17 @@ export function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50">
         <Routes>
-          {}
+          { }
           <Route path="/login" element={<LoginPage />} />
 
-          {}
+          { }
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/schedule/sales-login" element={<ScheduleSalesLoginPage />} />
           <Route path="/schedule/subcontractor-login" element={<ScheduleSubContractorLoginPage />} />
 
-          {}
+          { }
           <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
-            {}
+            { }
             <Route
               path="/"
               element={(() => {
@@ -89,7 +89,7 @@ export function App() {
               })()}
             />
 
-            {}
+            { }
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/profile" element={<ProfilePage />} />
             <Route path="/admin/user-management" element={<UserManagementPage />} />
@@ -99,7 +99,7 @@ export function App() {
             <Route path="/admin/geofences" element={<GeofenceManagementPage />} />
             <Route path="/admin/notifications" element={<NotificationsPage />} />
 
-            {}
+            { }
             <Route path="/sales/sub-contractors" element={<SubContractorsPage />} />
             <Route path="/sales/sub-contractors/:subContractorId" element={<SubContractorMonthPage />} />
             <Route path="/sales/calculator" element={<CalculatorPage />} />
@@ -108,7 +108,7 @@ export function App() {
             <Route path="/sales/ghl-accounts" element={<TestPage />} />
             <Route path="/sales/profile" element={<ProfilePage />} />
 
-            {}
+            { }
             <Route path="/sub-contractor/profile" element={<SubContractorProfilePage />} />
             <Route path="/sub-contractor/my-projects" element={<SubContractorDashboard />} />
             <Route path="/sub-contractor/schedule" element={<SubContractorSchedulePage />} />

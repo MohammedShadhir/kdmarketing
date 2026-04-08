@@ -44,8 +44,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const user = await loginAsSales(credentials);
       set({ user, loading: false, initialized: true });
-    } catch (error: any) {
-      const message = error?.message || "Sales login failed";
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Sales login failed";
       set({ error: message, loading: false });
       throw new Error(message);
     }
@@ -57,8 +58,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const user = await loginAsSubContractor(credentials);
       set({ user, loading: false, initialized: true });
-    } catch (error: any) {
-      const message = error?.message || "Subcontractor login failed";
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Subcontractor login failed";
       set({ error: message, loading: false });
       throw new Error(message);
     }
